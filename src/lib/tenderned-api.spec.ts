@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, test } from "vitest";
 import { TenderNedAPI } from "./tenderned-api";
 
 describe("TenderNedAPI - Search", () => {
@@ -61,7 +61,7 @@ describe("TenderNedAPI - Search", () => {
     }
   });
 
-  it("should filter by publication date preset", async () => {
+  it("should filter by publication last 30 days", async () => {
     const results = await api.search({
       search: "test",
       publicatieDatumPreset: "AF30", // Last 30 days
@@ -71,6 +71,26 @@ describe("TenderNedAPI - Search", () => {
       // Check if publications are within the last 30 days
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      results.content.forEach((publication) => {
+        const publicationDate = new Date(publication.publicatieDatum);
+        expect(publicationDate.getTime()).toBeGreaterThan(
+          thirtyDaysAgo.getTime()
+        );
+      });
+    }
+  });
+
+  it("should filter by publication last 7 days", async () => {
+    const results = await api.search({
+      search: "test",
+      publicatieDatumPreset: "AF7", // Last 7 days
+    });
+
+    if (results.content.length > 0) {
+      // Check if publications are within the last 7 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 7);
 
       results.content.forEach((publication) => {
         const publicationDate = new Date(publication.publicatieDatum);
@@ -132,4 +152,8 @@ describe("TenderNedAPI", () => {
       expect(isMercell).toBe(false);
     });
   });
+});
+
+test("test", () => {
+  console.log("test");
 });
