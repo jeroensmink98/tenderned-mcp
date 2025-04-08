@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { TenderNedAPI } from "./tenderned-api";
+import { TenderNedAPI } from "../src/lib/tenderned-api";
 
 describe("TenderNedAPI - Documents", () => {
   const api = new TenderNedAPI();
@@ -37,7 +37,6 @@ describe("TenderNedAPI - Documents", () => {
     expect(downloadUrl).toContain(
       `/publicaties/${testPublicationId}/documenten/${documentId}/content`
     );
-    console.log(downloadUrl);
 
     const zipUrl = api.getDocumentsZipDownloadUrl(testPublicationId);
     expect(zipUrl).toContain(
@@ -55,7 +54,6 @@ describe("TenderNedAPI - Documents", () => {
         expect(doc.publicatieCategorie.code).toBeDefined();
         expect(doc.publicatieCategorie.omschrijving).toBeDefined();
       });
-      console.log(documents.documenten);
     }
   });
 });

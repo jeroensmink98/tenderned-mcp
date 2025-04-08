@@ -3,6 +3,7 @@ import {
   TenderNedSearchResponse,
   TenderNedDocumentsResponse,
   TenderNedPublication,
+  isValidCPVCode,
 } from "./tenderned-types";
 
 export class TenderNedClient {
@@ -10,13 +11,24 @@ export class TenderNedClient {
 
   async get<T>(
     endpoint: string,
-    params: Record<string, string | number | boolean> = {}
+    params: Record<string, string | number | boolean | string[]> = {}
   ): Promise<T> {
-    const queryString = Object.entries(params)
-      .filter(([_, value]) => value !== undefined)
-      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-      .join("&");
+    const queryParams: string[] = [];
 
+    for (const [key, value] of Object.entries(params)) {
+      if (value === undefined) continue;
+
+      if (Array.isArray(value)) {
+        // Handle array parameters by repeating the key
+        value.forEach((v) =>
+          queryParams.push(`${key}=${encodeURIComponent(v)}`)
+        );
+      } else {
+        queryParams.push(`${key}=${encodeURIComponent(value)}`);
+      }
+    }
+
+    const queryString = queryParams.join("&");
     const url = `${this.baseUrl}${endpoint}${
       queryString ? `?${queryString}` : ""
     }`;
@@ -32,10 +44,21 @@ export class TenderNedClient {
    * Search for tenders
    * @param params - The search parameters
    * @returns The search results
+   * @throws Error if any provided CPV code is invalid
    */
   async search(
     params: TenderNedSearchParams
   ): Promise<TenderNedSearchResponse> {
+    // Validate CPV codes if provided
+    if (params.cpvCodes?.length) {
+      const invalidCodes = params.cpvCodes.filter(
+        (code) => !isValidCPVCode(code)
+      );
+      if (invalidCodes.length > 0) {
+        throw new Error(`Invalid CPV code(s): ${invalidCodes.join(", ")}`);
+      }
+    }
+
     const defaultParams = {
       page: 0,
       size: 50,

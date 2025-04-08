@@ -1,5 +1,5 @@
 import { describe, it, expect, test } from "vitest";
-import { TenderNedAPI } from "./tenderned-api";
+import { TenderNedAPI } from "../src/lib/tenderned-api";
 
 describe("TenderNedAPI - Search", () => {
   const api = new TenderNedAPI();

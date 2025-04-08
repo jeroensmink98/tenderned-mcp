@@ -1,1 +1,0 @@
-# Tenderned MCP Server
